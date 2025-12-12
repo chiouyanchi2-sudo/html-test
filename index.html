@@ -131,6 +131,14 @@ function cancelScheduledSources(){
   scheduledSources=[];
 }
 
+let cueBus=null;
+
+function initCueBus(){
+  cueBus=audioCtx.createGain();
+  cueBus.gain.value=1;
+  cueBus.connect(master);
+}
+
 let audioCtx=null, master=null;
 const buffers={};
 let audioReady=false, buffersReady=false;
@@ -164,6 +172,7 @@ function initAudio(){
   master=audioCtx.createGain();
   master.gain.value=1;
   master.connect(audioCtx.destination);
+  initCueBus();
 }
 
 function enableUI(enabled){
@@ -214,13 +223,9 @@ function playBufferAt(name, timeSec){
   if(!buffers[name]) return;
   const src=audioCtx.createBufferSource();
   src.buffer=buffers[name];
-  src.connect(master);
+  src.connect(cueBus); // ✅ 改這裡：接 cueBus
   src.start(timeSec);
-
-  // ✅ 記起來，等等可以取消
-  scheduledSources.push(src);
 }
-
 
 function scheduler(){
   const bpm=+document.getElementById("bpm").value || 60;
@@ -244,7 +249,7 @@ function scheduler(){
 }
 
 function stopAll(){
-  cancelScheduledSources();
+  cancelCue();
   schedulerTimer=null;
   currentBeat=0;
   beatEl.textContent="–";
@@ -252,6 +257,22 @@ function stopAll(){
   startBtn.disabled=false;
   setActiveButton(null);
   cuePill.textContent="Cue：–";
+}
+
+function cancelCue(){
+  if(!cueBus) return;
+  const t=audioCtx.currentTime;
+
+  // 立刻淡出（避免爆音）
+  cueBus.gain.cancelScheduledValues(t);
+  cueBus.gain.setValueAtTime(cueBus.gain.value, t);
+  cueBus.gain.linearRampToValueAtTime(0.0001, t + 0.02);
+
+  // 斷線，然後換一個新的 cueBus
+  setTimeout(()=>{
+    try{cueBus.disconnect();}catch(e){}
+    initCueBus();
+  }, 30);
 }
 
 async function unlockIOS(){
@@ -303,7 +324,7 @@ stopBtn.onclick = () => stopAll();
 
 function armCue(name, btnId){
   if(!schedulerTimer){ alert("先按 Start"); return; }
-  cancelScheduledSources(); // ✅ 點新段落時，把舊的全部砍掉
+  cancelCue();
   setActiveButton(btnId);
 
   const bpm=+document.getElementById("bpm").value || 60;
@@ -340,5 +361,6 @@ document.getElementById("bpm").addEventListener("input", ()=>{
 </script>
 </body>
 </html>
+
 
 
