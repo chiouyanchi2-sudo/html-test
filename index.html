@@ -231,13 +231,10 @@ let master = null;
 
 function speak(text){
   if(!window.speechSynthesis) return;
-  if(!text) return; // 防呆：null/undefined/空字串不講
+  if(!text) return;
 
   const u = new SpeechSynthesisUtterance(String(text));
   u.lang = "en-US";
-
-  // iOS 有時候需要先 cancel 才會立刻講下一句（避免卡住）
-  speechSynthesis.cancel();
   speechSynthesis.speak(u);
 }
 
@@ -414,3 +411,4 @@ bridgeBtn.onclick = () => armCue("Bridge","bridge");
 </script>
 </body>
 </html>
+
