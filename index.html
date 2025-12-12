@@ -86,6 +86,7 @@ small{color:#6f788a}
 /* =========================
    Core Audio (iOS-safe)
 ========================= */
+let cueToken = 0;
 let audioCtx=null;
 let master=null;
 let clickBus=null; // metronome click
@@ -160,14 +161,20 @@ async function loadAllBuffers(){
   loadPill.textContent="音檔：已載入";
 }
 
-function playCueAt(name, timeSec){
-  const buf=buffers[name];
+function playCueAt(name, timeSec, token){
+  const buf = buffers[name];
   if(!buf) return;
-  const src=audioCtx.createBufferSource();
-  src.buffer=buf;
-  src.connect(cueBus);
+
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  src.connect(master);
+
+  // ⚠️ 如果這個 cue 已經過期，就不播
+  if(token !== cueToken) return;
+
   src.start(timeSec);
 }
+
 
 /* =========================
    Scheduler (stable)
@@ -223,20 +230,14 @@ function startMetronome(){
 }
 
 function stopMetronome(){
-  isRunning=false;
-  runPill.textContent="狀態：停止";
-
+  isRunning = false;
+  cueToken++;          // ❗讓所有已排的 cue 全部失效
   clearTimeout(schedulerTimer);
-  schedulerTimer=null;
-
-  currentBeat=0;
-  beatEl.textContent="–";
-
-  setActiveButton(null);
-  cuePill.textContent="Cue：–";
-
-  killCueBus(); // kill any queued cue audio
+  schedulerTimer = null;
+  currentBeat = 0;
+  beatEl.textContent = "–";
 }
+
 
 /* =========================
    Cue logic (always next downbeat)
@@ -248,37 +249,32 @@ function setActiveButton(id){
 }
 
 function scheduleCue(sectionName, btnId){
-  if(!isRunning){ alert("先按 Start"); return; }
-  if(!buffersReady){ alert("音檔還沒載好"); return; }
+  if(!isRunning) return;
+  if(!buffersReady) return;
 
-  // kill previous cue immediately (no overlap, iOS-safe)
-  killCueBus();
+  cueToken++;                 // ✅ 宣告：這是最新的一組 cue
+  const myToken = cueToken;
 
   setActiveButton(btnId);
-  cuePill.textContent=`Cue：${sectionName}`;
+  cuePill.textContent = `Cue：${sectionName}`;
 
-  const bpm=getBpm();
-  const meter=getMeter();
-  const secPerBeat=60/bpm;
+  const bpm = getBpm();
+  const meter = getMeter();
+  const secPerBeat = 60 / bpm;
 
-  // We want the next downbeat time (beat 1) relative to the LAST scheduled beat (currentBeat)
-  // currentBeat is the beat number of the last beat we scheduled in scheduler().
-  // nextNoteTime is the time for the NEXT beat to be scheduled.
-  const beatsUntilDownbeat=(meter - currentBeat) % meter + 1; // 1..meter
+  const beatsUntilDownbeat = (meter - currentBeat) % meter + 1;
   const downbeatTime = nextNoteTime + (beatsUntilDownbeat - 1) * secPerBeat;
 
-  // schedule section + 3-2-1
-  playCueAt(sectionName.toLowerCase(), downbeatTime);
-  playCueAt("three", downbeatTime + 1*secPerBeat);
-  playCueAt("two",   downbeatTime + 2*secPerBeat);
-  playCueAt("one",   downbeatTime + 3*secPerBeat);
+  playCueAt(sectionName.toLowerCase(), downbeatTime, myToken);
+  playCueAt("three", downbeatTime + 1*secPerBeat, myToken);
+  playCueAt("two",   downbeatTime + 2*secPerBeat, myToken);
+  playCueAt("one",   downbeatTime + 3*secPerBeat, myToken);
 
-  // UI reset after countdown
-  const uiMs=Math.max(0,(downbeatTime + 3*secPerBeat - audioCtx.currentTime)*1000 + 120);
   setTimeout(()=>{
+    if(myToken !== cueToken) return;
     setActiveButton(null);
     cuePill.textContent="Cue：–";
-  }, uiMs);
+  }, Math.max(0,(downbeatTime + 3*secPerBeat - audioCtx.currentTime)*1000 + 80));
 }
 
 /* =========================
@@ -372,3 +368,4 @@ bpmEl.addEventListener("input", ()=>{
 </script>
 </body>
 </html>
+
