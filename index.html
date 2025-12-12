@@ -223,6 +223,12 @@ button.stop.running{filter:brightness(1.15)}
 </div>
 
 <script>
+function speechWarmup(){
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  speak("Speech ready");
+}
+
 // =======================
 // Audio（最基本、最穩）
 // =======================
@@ -414,6 +420,7 @@ bridgeBtn.onclick = () => armCue("Bridge","bridge");
 </script>
 </body>
 </html>
+
 
 
 
