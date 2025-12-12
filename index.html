@@ -237,7 +237,6 @@ function speak(text){
   u.lang = "en-US";
 
   // iOS 有時候需要先 cancel 才會立刻講下一句（避免卡住）
-  speechSynthesis.cancel();
   speechSynthesis.speak(u);
 }
 
@@ -414,3 +413,4 @@ bridgeBtn.onclick = () => armCue("Bridge","bridge");
 </script>
 </body>
 </html>
+
