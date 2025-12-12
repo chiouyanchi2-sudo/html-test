@@ -307,7 +307,7 @@ let nextNoteTime = 0;       // AudioContext 時間（秒）
 
 const lookaheadMs = 25;     // 每 25ms 檢查一次
 const scheduleAheadTime = 0.12; // 先排 120ms 內的事件
-const SPEECH_LEAD_MS = 5000; // ✅ 語音提前量（你要自己校正，先用 220）
+const SPEECH_LEAD_MS = 150; // ✅ 語音提前量（你要自己校正，先用 220）
 let speechEvents = [];      // {timeSec, text}
 
 function scheduleSpeakAt(text, timeSec){
@@ -424,6 +424,7 @@ bridgeBtn.onclick = () => armCue("Bridge","bridge");
 </script>
 </body>
 </html>
+
 
 
 
