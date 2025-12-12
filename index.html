@@ -170,10 +170,7 @@ button.stop.running{filter:brightness(1.15)}
 </head>
 
 <body>
-<button onclick="speechWarmup()"
-  style="position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:999;padding:12px 18px;border-radius:12px;">
-  🗣️ 測試講話
-</button>
+
 <div class="stage">
 
   <!-- 左：控制 -->
@@ -226,12 +223,6 @@ button.stop.running{filter:brightness(1.15)}
 </div>
 
 <script>
-function speechWarmup(){
-  if(!window.speechSynthesis) return;
-  speechSynthesis.cancel();
-  speak("Speech ready");
-}
-
 // =======================
 // Audio（最基本、最穩）
 // =======================
@@ -306,7 +297,7 @@ let nextNoteTime = 0;       // AudioContext 時間（秒）
 
 const lookaheadMs = 25;     // 每 25ms 檢查一次
 const scheduleAheadTime = 0.12; // 先排 120ms 內的事件
-const SPEECH_LEAD_MS = 500; // ✅ 語音提前量（你要自己校正，先用 220）
+const SPEECH_LEAD_MS = 800; // ✅ 語音提前量（你要自己校正，先用 220）
 let speechEvents = [];      // {timeSec, text}
 
 function scheduleSpeakAt(text, timeSec){
@@ -423,6 +414,7 @@ bridgeBtn.onclick = () => armCue("Bridge","bridge");
 </script>
 </body>
 </html>
+
 
 
 
