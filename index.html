@@ -342,13 +342,27 @@ function scheduler(){
 // =======================
 // 控制
 // =======================
-startBtn.onclick = () => {
+startBtn.onclick = async () => {
   initAudio();
-  audioCtx.resume();
+
+  // ✅ iOS 關鍵：強制 resume，等它真的醒
+  if(audioCtx.state !== "running"){
+    await audioCtx.resume();
+  }
+
+  // ✅ 再打一個「無聲 click」喚醒音訊系統
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  gain.gain.value = 0.0001; // 幾乎聽不到
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.01);
+
   if(window.speechSynthesis) speechSynthesis.cancel();
 
   currentBeat = 0;
-  nextNoteTime = audioCtx.currentTime + 0.05; // 稍微往後，避免卡住
+  nextNoteTime = audioCtx.currentTime + 0.1;
   speechEvents = [];
 
   startBtn.disabled = true;
@@ -358,6 +372,7 @@ startBtn.onclick = () => {
 
   scheduler();
 };
+
 
 stopBtn.onclick = () => {
   clearTimeout(schedulerTimer);
@@ -411,4 +426,5 @@ bridgeBtn.onclick = () => armCue("Bridge","bridge");
 </script>
 </body>
 </html>
+
 
