@@ -3,72 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>iOS Metronome + Cues (Audio)</title>
+<title>iOS Metronome + Cues (Stable Audio)</title>
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;background:#0f1115;color:#e9ecf1;font-family:system-ui;
-  height:100vh;display:flex;align-items:center;justify-content:center;
-}
-.stage{
-  aspect-ratio:16/9;
-  width:min(96vw, calc(96vh * 16 / 9));
-  height:min(96vh, calc(96vw * 9 / 16));
-  background:#111522;border:1px solid #2b3146;border-radius:18px;
-  padding:16px;display:grid;grid-template-columns:2fr 1fr;gap:16px;
-}
-.panel{
-  background:#171a21;border-radius:16px;padding:16px;
-  display:flex;flex-direction:column;gap:10px;
-}
+body{margin:0;background:#0f1115;color:#e9ecf1;font-family:system-ui;height:100vh;display:flex;align-items:center;justify-content:center}
+.stage{aspect-ratio:16/9;width:min(96vw, calc(96vh * 16 / 9));height:min(96vh, calc(96vw * 9 / 16));background:#111522;border:1px solid #2b3146;border-radius:18px;padding:16px;display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.panel{background:#171a21;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
 h1{margin:0 0 6px;font-size:18px}
 label{display:block;color:#a8b0bf;font-size:14px;margin-top:6px}
-input,select,button{
-  width:100%;padding:18px;border-radius:16px;border:1px solid #2b3146;
-  background:#0f121a;color:#fff;font-size:18px;
-  transition:transform .08s, filter .15s, opacity .15s;
-}
+input,select,button{width:100%;padding:18px;border-radius:16px;border:1px solid #2b3146;background:#0f121a;color:#fff;font-size:18px;transition:transform .08s, filter .15s, opacity .15s}
 button:active{transform:scale(.98);filter:brightness(.95)}
 button:disabled{opacity:.45;filter:grayscale(.3)}
-button.start{background:#2d6cdf;border-color:#2d6cdf;font-size:30px;padding:70px;}
-button.stop{background:#d64545;border-color:#d64545;font-size:30px;padding:70px;}
-select{
-  appearance:none;-webkit-appearance:none;-moz-appearance:none;
-  background-image:
-    linear-gradient(45deg, transparent 50%, #a8b0bf 50%),
-    linear-gradient(135deg, #a8b0bf 50%, transparent 50%);
-  background-position:calc(100% - 18px) 50%,calc(100% - 12px) 50%;
-  background-size:6px 6px, 6px 6px;background-repeat:no-repeat;
-  padding-right:36px;
-}
-#controls{
-  display:grid;grid-template-columns:repeat(2,1fr);
-  gap:10px;margin-top:6px;
-}
-.ctrlBtn{
-  background:#22283a;font-weight:800;padding:70px;font-size:40px;
-}
+button.start{background:#2d6cdf;border-color:#2d6cdf;font-size:30px;padding:70px}
+button.stop{background:#d64545;border-color:#d64545;font-size:30px;padding:70px}
+select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:linear-gradient(45deg, transparent 50%, #a8b0bf 50%),linear-gradient(135deg, #a8b0bf 50%, transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 12px) 50%;background-size:6px 6px, 6px 6px;background-repeat:no-repeat;padding-right:36px}
+#controls{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:6px}
+.ctrlBtn{background:#22283a;font-weight:800;padding:70px;font-size:40px}
 .ctrlBtn.active{background:#35c759;color:#000;transform:scale(0.97)}
-.display{
-  background:#0b0d12;border-radius:16px;border:1px solid #2b3146;
-  display:flex;flex-direction:column;padding:16px;gap:12px;
-}
+.display{background:#0b0d12;border-radius:16px;border:1px solid #2b3146;display:flex;flex-direction:column;padding:16px;gap:12px}
 .displayTitle{font-size:18px;color:#a8b0bf}
-.bigBeat{
-  height:400px;flex:none;font-size:56px;font-weight:900;
-  display:flex;align-items:center;justify-content:center;
-  border-radius:16px;background:#06070b;letter-spacing:2px;
-}
-.pill{
-  padding:8px 10px;border-radius:999px;border:1px solid #2b3146;
-  background:#0f121a;color:#a8b0bf;font-size:14px;
-}
-.statusRow{display:flex;gap:10px;justify-content:space-between;align-items:center}
-#unlockBtn{
-  position:fixed;top:12px;left:50%;transform:translateX(-50%);
-  z-index:999;padding:12px 18px;border-radius:12px;
-  border:1px solid #2b3146;background:#0f121a;color:#fff;
-}
+.bigBeat{height:400px;flex:none;font-size:56px;font-weight:900;display:flex;align-items:center;justify-content:center;border-radius:16px;background:#06070b;letter-spacing:2px}
+.pill{padding:8px 10px;border-radius:999px;border:1px solid #2b3146;background:#0f121a;color:#a8b0bf;font-size:14px;white-space:nowrap}
+.statusRow{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+#unlockBtn{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:999;padding:12px 18px;border-radius:12px;border:1px solid #2b3146;background:#0f121a;color:#fff}
+small{color:#6f788a}
 </style>
 </head>
 <body>
@@ -81,7 +39,7 @@ select{
 
     <div>
       <label>BPM</label>
-      <input id="bpm" type="number" value="100" inputmode="numeric">
+      <input id="bpm" type="number" value="100" inputmode="numeric" min="30" max="300">
     </div>
 
     <div>
@@ -108,7 +66,10 @@ select{
     <div class="statusRow" style="margin-top:auto">
       <div class="pill" id="statusPill">尚未解鎖聲音</div>
       <div class="pill" id="loadPill">音檔：未載入</div>
+      <div class="pill" id="runPill">狀態：停止</div>
     </div>
+
+    <small>iOS：請先點「啟用聲音」→ Start → 再按段落</small>
   </div>
 
   <div class="display">
@@ -122,84 +83,64 @@ select{
 </div>
 
 <script>
-let scheduledSources=[];
-
-function cancelScheduledSources(){
-  scheduledSources.forEach(s=>{
-    try{s.stop(0);}catch(e){}
-  });
-  scheduledSources=[];
-}
-
-let cueBus=null;
-
-function initCueBus(){
-  cueBus=audioCtx.createGain();
-  cueBus.gain.value=1;
-  cueBus.connect(master);
-}
-
-let audioCtx=null, master=null;
+/* =========================
+   Core Audio (iOS-safe)
+========================= */
+let audioCtx=null;
+let master=null;
+let clickBus=null; // metronome click
+let cueBus=null;   // cue voice (we can kill/swap this bus safely)
 const buffers={};
-let audioReady=false, buffersReady=false;
 
-// metronome scheduler
-let currentBeat=0;
-let nextNoteTime=0;
-let schedulerTimer=null;
-const lookaheadMs=25;
-const scheduleAheadTime=0.12;
-
-// DOM
-const unlockBtn=document.getElementById("unlockBtn");
-const startBtn=document.getElementById("start");
-const stopBtn=document.getElementById("stop");
-const beatEl=document.getElementById("beat");
-const cuePill=document.getElementById("cuePill");
-const bpmPill=document.getElementById("bpmPill");
-const statusPill=document.getElementById("statusPill");
-const loadPill=document.getElementById("loadPill");
-
-const introBtn=document.getElementById("intro");
-const verseBtn=document.getElementById("verse");
-const chorusBtn=document.getElementById("chorus");
-const bridgeBtn=document.getElementById("bridge");
+let audioReady=false;
+let buffersReady=false;
 
 function initAudio(){
   if(audioCtx) return;
   const Ctx=window.AudioContext||window.webkitAudioContext;
   audioCtx=new Ctx();
+
   master=audioCtx.createGain();
   master.gain.value=1;
   master.connect(audioCtx.destination);
-  initCueBus();
+
+  clickBus=audioCtx.createGain();
+  clickBus.gain.value=1;
+  clickBus.connect(master);
+
+  cueBus=audioCtx.createGain();
+  cueBus.gain.value=1;
+  cueBus.connect(master);
 }
 
-function enableUI(enabled){
-  startBtn.disabled=!enabled;
-  introBtn.disabled=!enabled;
-  verseBtn.disabled=!enabled;
-  chorusBtn.disabled=!enabled;
-  bridgeBtn.disabled=!enabled;
+function killCueBus(){ // iOS-safe "cancel cue": fade out + disconnect + new bus
+  if(!audioCtx || !cueBus) return;
+  const t=audioCtx.currentTime;
+  cueBus.gain.cancelScheduledValues(t);
+  cueBus.gain.setValueAtTime(cueBus.gain.value, t);
+  cueBus.gain.linearRampToValueAtTime(0.0001, t+0.02);
+  setTimeout(()=>{
+    try{cueBus.disconnect();}catch(e){}
+    cueBus=audioCtx.createGain();
+    cueBus.gain.value=1;
+    cueBus.connect(master);
+  },30);
 }
 
-function setActiveButton(id){
-  document.querySelectorAll(".ctrlBtn").forEach(btn=>{
-    btn.classList.toggle("active", btn.id===id);
-  });
-}
-
-function clickSoundAt(accent, time){
-  const t=time ?? audioCtx.currentTime;
+function clickSoundAt(accent, timeSec){
+  const t=timeSec ?? audioCtx.currentTime;
   const osc=audioCtx.createOscillator();
   const gain=audioCtx.createGain();
   osc.type="square";
   osc.frequency.value=accent?1400:1000;
+
   gain.gain.setValueAtTime(0.0001,t);
   gain.gain.exponentialRampToValueAtTime(0.25,t+0.003);
   gain.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
+
   osc.connect(gain);
-  gain.connect(master);
+  gain.connect(clickBus);
+
   osc.start(t);
   osc.stop(t+0.06);
 }
@@ -219,17 +160,38 @@ async function loadAllBuffers(){
   loadPill.textContent="音檔：已載入";
 }
 
-function playBufferAt(name, timeSec){
-  if(!buffers[name]) return;
+function playCueAt(name, timeSec){
+  const buf=buffers[name];
+  if(!buf) return;
   const src=audioCtx.createBufferSource();
-  src.buffer=buffers[name];
-  src.connect(cueBus); // ✅ 改這裡：接 cueBus
+  src.buffer=buf;
+  src.connect(cueBus);
   src.start(timeSec);
 }
 
+/* =========================
+   Scheduler (stable)
+========================= */
+let schedulerTimer=null;
+let isRunning=false;
+let currentBeat=0;     // 1..meter (last scheduled beat)
+let nextNoteTime=0;    // audioCtx time of next beat to schedule
+const lookaheadMs=25;
+const scheduleAheadTime=0.12;
+
+function getBpm(){
+  const v=+bpmEl.value;
+  if(!v || v<30) return 30;
+  if(v>300) return 300;
+  return v;
+}
+function getMeter(){ return +meterEl.value || 4; }
+
 function scheduler(){
-  const bpm=+document.getElementById("bpm").value || 60;
-  const meter=+document.getElementById("meter").value;
+  if(!isRunning) return;
+
+  const bpm=getBpm();
+  const meter=getMeter();
   const secPerBeat=60/bpm;
   bpmPill.textContent=`BPM：${bpm}`;
 
@@ -239,128 +201,174 @@ function scheduler(){
 
     clickSoundAt(isDownbeat, nextNoteTime);
 
-    setTimeout(()=>{
-      beatEl.textContent=currentBeat;
-    }, Math.max(0,(nextNoteTime-audioCtx.currentTime)*1000));
+    // visual
+    const beatToShow=currentBeat;
+    const showDelay=Math.max(0,(nextNoteTime-audioCtx.currentTime)*1000);
+    setTimeout(()=>{ beatEl.textContent=beatToShow; }, showDelay);
 
     nextNoteTime += secPerBeat;
   }
+
   schedulerTimer=setTimeout(scheduler, lookaheadMs);
 }
 
-function stopAll(){
-  cancelCue();
-  schedulerTimer=null;
+function startMetronome(){
+  if(isRunning) return; // prevent double start
+  isRunning=true;
+  runPill.textContent="狀態：運行中";
+
   currentBeat=0;
-  beatEl.textContent="–";
-  stopBtn.disabled=true;
-  startBtn.disabled=false;
-  setActiveButton(null);
-  cuePill.textContent="Cue：–";
+  nextNoteTime=audioCtx.currentTime + 0.12;
+  scheduler();
 }
 
-function cancelCue(){
-  if(!cueBus) return;
-  const t=audioCtx.currentTime;
+function stopMetronome(){
+  isRunning=false;
+  runPill.textContent="狀態：停止";
 
-  // 立刻淡出（避免爆音）
-  cueBus.gain.cancelScheduledValues(t);
-  cueBus.gain.setValueAtTime(cueBus.gain.value, t);
-  cueBus.gain.linearRampToValueAtTime(0.0001, t + 0.02);
+  clearTimeout(schedulerTimer);
+  schedulerTimer=null;
 
-  // 斷線，然後換一個新的 cueBus
+  currentBeat=0;
+  beatEl.textContent="–";
+
+  setActiveButton(null);
+  cuePill.textContent="Cue：–";
+
+  killCueBus(); // kill any queued cue audio
+}
+
+/* =========================
+   Cue logic (always next downbeat)
+========================= */
+function setActiveButton(id){
+  document.querySelectorAll(".ctrlBtn").forEach(btn=>{
+    btn.classList.toggle("active", btn.id===id);
+  });
+}
+
+function scheduleCue(sectionName, btnId){
+  if(!isRunning){ alert("先按 Start"); return; }
+  if(!buffersReady){ alert("音檔還沒載好"); return; }
+
+  // kill previous cue immediately (no overlap, iOS-safe)
+  killCueBus();
+
+  setActiveButton(btnId);
+  cuePill.textContent=`Cue：${sectionName}`;
+
+  const bpm=getBpm();
+  const meter=getMeter();
+  const secPerBeat=60/bpm;
+
+  // We want the next downbeat time (beat 1) relative to the LAST scheduled beat (currentBeat)
+  // currentBeat is the beat number of the last beat we scheduled in scheduler().
+  // nextNoteTime is the time for the NEXT beat to be scheduled.
+  const beatsUntilDownbeat=(meter - currentBeat) % meter + 1; // 1..meter
+  const downbeatTime = nextNoteTime + (beatsUntilDownbeat - 1) * secPerBeat;
+
+  // schedule section + 3-2-1
+  playCueAt(sectionName.toLowerCase(), downbeatTime);
+  playCueAt("three", downbeatTime + 1*secPerBeat);
+  playCueAt("two",   downbeatTime + 2*secPerBeat);
+  playCueAt("one",   downbeatTime + 3*secPerBeat);
+
+  // UI reset after countdown
+  const uiMs=Math.max(0,(downbeatTime + 3*secPerBeat - audioCtx.currentTime)*1000 + 120);
   setTimeout(()=>{
-    try{cueBus.disconnect();}catch(e){}
-    initCueBus();
-  }, 30);
+    setActiveButton(null);
+    cuePill.textContent="Cue：–";
+  }, uiMs);
+}
+
+/* =========================
+   UI / iOS unlock
+========================= */
+const unlockBtn=document.getElementById("unlockBtn");
+const startBtn=document.getElementById("start");
+const stopBtn=document.getElementById("stop");
+const bpmEl=document.getElementById("bpm");
+const meterEl=document.getElementById("meter");
+
+const beatEl=document.getElementById("beat");
+const cuePill=document.getElementById("cuePill");
+const bpmPill=document.getElementById("bpmPill");
+const statusPill=document.getElementById("statusPill");
+const loadPill=document.getElementById("loadPill");
+const runPill=document.getElementById("runPill");
+
+const introBtn=document.getElementById("intro");
+const verseBtn=document.getElementById("verse");
+const chorusBtn=document.getElementById("chorus");
+const bridgeBtn=document.getElementById("bridge");
+
+function enableButtons(enabled){
+  startBtn.disabled=!enabled;
+  introBtn.disabled=!enabled;
+  verseBtn.disabled=!enabled;
+  chorusBtn.disabled=!enabled;
+  bridgeBtn.disabled=!enabled;
 }
 
 async function unlockIOS(){
   initAudio();
-  // iOS：一定要在 user gesture 裡 resume
+
   if(audioCtx.state!=="running"){
     await audioCtx.resume();
   }
-  // iOS：打一個極短、幾乎無聲的輸出，讓音訊路徑醒來
+
+  // tiny "wake" sound path
   const osc=audioCtx.createOscillator();
-  const gain=audioCtx.createGain();
-  gain.gain.value=0.0001;
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
+  const g=audioCtx.createGain();
+  g.gain.value=0.0001;
+  osc.connect(g);
+  g.connect(audioCtx.destination);
   osc.start();
   osc.stop(audioCtx.currentTime+0.01);
 
   audioReady=true;
   statusPill.textContent="聲音：已解鎖";
   unlockBtn.style.display="none";
-  enableUI(true);
+
+  enableButtons(true);
   startBtn.disabled=false;
   stopBtn.disabled=true;
 
-  // 預載音檔（第一次要等一下）
   try{
     await loadAllBuffers();
   }catch(e){
-    loadPill.textContent="音檔：缺檔/載入失敗";
-    alert(String(e.message || e));
+    loadPill.textContent="音檔：載入失敗";
+    alert(String(e.message||e));
   }
 }
 
 unlockBtn.addEventListener("click", unlockIOS);
 
-startBtn.onclick = () => {
-  if(!audioReady){ alert("先點上方『啟用聲音』"); return; }
-  if(!buffersReady){ alert("音檔還沒載好，等一下"); return; }
+startBtn.onclick=()=>{
+  if(!audioReady){ alert("先點『啟用聲音』"); return; }
+  if(!buffersReady){ alert("音檔還沒載好"); return; }
 
   startBtn.disabled=true;
   stopBtn.disabled=false;
-
-  currentBeat=0;
-  nextNoteTime=audioCtx.currentTime + 0.1;
-  scheduler();
+  startMetronome();
 };
 
-stopBtn.onclick = () => stopAll();
+stopBtn.onclick=()=>{
+  stopMetronome();
+  startBtn.disabled=false;
+  stopBtn.disabled=true;
+};
 
-function armCue(name, btnId){
-  if(!schedulerTimer){ alert("先按 Start"); return; }
-  cancelCue();
-  setActiveButton(btnId);
+// cues
+introBtn.onclick = ()=>scheduleCue("Intro","intro");
+verseBtn.onclick = ()=>scheduleCue("Verse","verse");
+chorusBtn.onclick= ()=>scheduleCue("Chorus","chorus");
+bridgeBtn.onclick= ()=>scheduleCue("Bridge","bridge");
 
-  const bpm=+document.getElementById("bpm").value || 60;
-  const meter=+document.getElementById("meter").value;
-  const secPerBeat=60/bpm;
-
-  const beatsUntilDownbeat=(meter - currentBeat) % meter + 1;
-  const downbeatTime=nextNoteTime + (beatsUntilDownbeat - 1) * secPerBeat;
-
-  cuePill.textContent=`Cue：${name}`;
-
-  // 段落名 + 321：全部走 AudioContext → 準到毫秒
-  playBufferAt(name.toLowerCase(), downbeatTime);
-  playBufferAt("three", downbeatTime + 1*secPerBeat);
-  playBufferAt("two",   downbeatTime + 2*secPerBeat);
-  playBufferAt("one",   downbeatTime + 3*secPerBeat);
-
-  setTimeout(()=>{
-    setActiveButton(null);
-    cuePill.textContent="Cue：–";
-  }, Math.max(0,(downbeatTime + 3*secPerBeat - audioCtx.currentTime)*1000 + 80));
-}
-
-introBtn.onclick  = () => armCue("Intro","intro");
-verseBtn.onclick  = () => armCue("Verse","verse");
-chorusBtn.onclick = () => armCue("Chorus","chorus");
-bridgeBtn.onclick = () => armCue("Bridge","bridge");
-
-// 小修：BPM 改了右下 pill 也跟著更新
-document.getElementById("bpm").addEventListener("input", ()=>{
-  const bpm=+document.getElementById("bpm").value || 60;
-  bpmPill.textContent=`BPM：${bpm}`;
+// bpm pill live update
+bpmEl.addEventListener("input", ()=>{
+  bpmPill.textContent=`BPM：${getBpm()}`;
 });
 </script>
 </body>
 </html>
-
-
-
