@@ -244,7 +244,7 @@ function scheduler(){
 }
 
 function stopAll(){
-  clearTimeout(schedulerTimer);
+  cancelScheduledSources();
   schedulerTimer=null;
   currentBeat=0;
   beatEl.textContent="–";
@@ -300,10 +300,10 @@ startBtn.onclick = () => {
 };
 
 stopBtn.onclick = () => stopAll();
-cancelScheduledSources(); // ✅ 點新段落時，把舊的全部砍掉
 
 function armCue(name, btnId){
   if(!schedulerTimer){ alert("先按 Start"); return; }
+  cancelScheduledSources(); // ✅ 點新段落時，把舊的全部砍掉
   setActiveButton(btnId);
 
   const bpm=+document.getElementById("bpm").value || 60;
@@ -340,4 +340,5 @@ document.getElementById("bpm").addEventListener("input", ()=>{
 </script>
 </body>
 </html>
+
 
