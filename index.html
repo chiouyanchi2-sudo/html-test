@@ -122,6 +122,15 @@ select{
 </div>
 
 <script>
+let scheduledSources=[];
+
+function cancelScheduledSources(){
+  scheduledSources.forEach(s=>{
+    try{s.stop(0);}catch(e){}
+  });
+  scheduledSources=[];
+}
+
 let audioCtx=null, master=null;
 const buffers={};
 let audioReady=false, buffersReady=false;
@@ -207,7 +216,11 @@ function playBufferAt(name, timeSec){
   src.buffer=buffers[name];
   src.connect(master);
   src.start(timeSec);
+
+  // ✅ 記起來，等等可以取消
+  scheduledSources.push(src);
 }
+
 
 function scheduler(){
   const bpm=+document.getElementById("bpm").value || 60;
@@ -287,6 +300,7 @@ startBtn.onclick = () => {
 };
 
 stopBtn.onclick = () => stopAll();
+cancelScheduledSources(); // ✅ 點新段落時，把舊的全部砍掉
 
 function armCue(name, btnId){
   if(!schedulerTimer){ alert("先按 Start"); return; }
@@ -326,3 +340,4 @@ document.getElementById("bpm").addEventListener("input", ()=>{
 </script>
 </body>
 </html>
+
