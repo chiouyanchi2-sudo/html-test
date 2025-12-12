@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Metronome 16:9 UI</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#0f1115;
+  color:#e9ecf1;
+  font-family:system-ui;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* 16:9 畫布：永遠維持比例，塞進螢幕 */
+.stage{
+  aspect-ratio:16/9;
+  width:min(96vw, calc(96vh * 16 / 9));
+  height:min(96vh, calc(96vw * 9 / 16));
+  background:#111522;
+  border:1px solid #2b3146;
+  border-radius:18px;
+  padding:16px;
+  display:grid;
+  grid-template-columns: 2fr 1fr; /* 左控制 / 右顯示 */
+  gap:16px;
+}
+
+/* 左側面板 */
+.panel{
+  background:#171a21;
+  border-radius:16px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+h1{margin:0 0 6px;font-size:18px}
+label{
+  display:block;
+  color:#a8b0bf;
+  font-size:14px;
+  margin-top:6px;
+}
+
+/* 統一表單外觀 */
+input,select,button{
+  width:100%;
+  padding:18px;
+  border-radius:16px;
+  border:1px solid #2b3146;
+  background:#0f121a;
+  color:#fff;
+  font-size:18px;
+  transition: transform .08s, filter .15s, opacity .15s;
+}
+button.start{background:#2d6cdf;border-color:#2d6cdf;}
+button.stop{background:#d64545;border-color:#d64545;}
+button.start:disabled,
+button.stop:disabled{opacity:.45;filter:grayscale(.3);}
+
+select{
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #a8b0bf 50%),
+    linear-gradient(135deg, #a8b0bf 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-size:6px 6px, 6px 6px;
+  background-repeat:no-repeat;
+  padding-right:36px;
+}
+
+/* 按壓感 + disabled */
+button:active{transform:scale(0.98);filter:brightness(0.95)}
+button:disabled{opacity:.45;filter:grayscale(.3)}
+
+/* Start/Stop */
+button.start,
+button.stop{
+  font-size:30px;
+  padding:70px;
+}
+button.start.running{filter:brightness(.85)}
+button.stop.running{filter:brightness(1.15)}
+
+/* 四段按鈕 2x2 */
+#controls{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-top:6px;
+}
+.ctrlBtn{
+  background:#22283a;
+  font-weight:800;
+  padding:70px;
+  font-size:40px;
+}
+.ctrlBtn.active{background:#35c759;color:#000;transform:scale(0.97)}
+
+/* 右側顯示區 */
+.display{
+  background:#0b0d12;
+  border-radius:16px;
+  border:1px solid #2b3146;
+  display:flex;
+  flex-direction:column;
+  padding:16px;
+  gap:12px;
+  justify-content:flex-start;
+}
+
+.displayTop{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+}
+.displayTitle{
+  font-size:18px;
+  color:#a8b0bf;
+}
+.displayHint{
+  font-size:14px;
+  color:#6f788a;
+  text-align:right;
+}
+
+/* 超大拍子 */
+.bigBeat{
+  height:400px;          /* 固定高度 */
+  flex:none;             /* 不要吃整個空間 */
+  font-size:56px;        /* 明顯縮小 */
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:16px;
+  background:#06070b;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+/* 小節/狀態可放這裡（你之後要加也方便） */
+.statusRow{
+  display:flex;
+  gap:10px;
+  color:#a8b0bf;
+  font-size:14px;
+  justify-content:space-between;
+}
+.pill{
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid #2b3146;
+  background:#0f121a;
+}
+</style>
+</head>
+
+<body>
+
+<div class="stage">
+
+  <!-- 左：控制 -->
+  <div class="panel">
+    <h1>節拍控制</h1>
+
+    <div>
+      <label>BPM</label>
+      <input id="bpm" type="number" value="100">
+    </div>
+
+    <div>
+      <label>拍號</label>
+      <select id="meter">
+        <option value="4">4 / 4</option>
+        <option value="3">3 / 4</option>
+        <option value="6">6 / 8</option>
+      </select>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+      <button class="start" id="start">Start</button>
+      <button class="stop" id="stop" disabled>Stop</button>
+    </div>
+
+    <div id="controls">
+      <button class="ctrlBtn" id="intro">Intro</button>
+      <button class="ctrlBtn" id="verse">Verse</button>
+      <button class="ctrlBtn" id="chorus">Chorus</button>
+      <button class="ctrlBtn" id="bridge">Bridge</button>
+    </div>
+
+    <div class="statusRow" style="margin-top:auto">
+      <div class="pill">控制</div>
+    </div>
+  </div>
+
+  <!-- 右：顯示 -->
+  <div class="display">
+    <div class="displayTop">
+      <div class="displayTitle">Beat</div>
+    </div>
+
+    <div class="bigBeat" id="beat">–</div>
+
+    <div class="statusRow">
+    </div>
+  </div>
+
+</div>
+
+<script>
+// =======================
+// Audio（最基本、最穩）
+// =======================
+let audioCtx = null;
+let master = null;
+
+function speak(text){
+  if(!window.speechSynthesis) return;
+  if(!text) return; // 防呆：null/undefined/空字串不講
+
+  const u = new SpeechSynthesisUtterance(String(text));
+  u.lang = "en-US";
+
+  // iOS 有時候需要先 cancel 才會立刻講下一句（避免卡住）
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+const introBtn  = document.getElementById("intro");
+const verseBtn  = document.getElementById("verse");
+const chorusBtn = document.getElementById("chorus");
+const bridgeBtn = document.getElementById("bridge");
+const startBtn = document.getElementById("start");
+const stopBtn  = document.getElementById("stop");
+startBtn.classList.remove("running");
+stopBtn.classList.remove("running");
+
+let armedCue = null;       // 目前準備中的段落
+
+function initAudio(){
+  if(audioCtx) return;
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  audioCtx = new Ctx();
+  master = audioCtx.createGain();
+  master.gain.value = 1;
+  master.connect(audioCtx.destination);
+}
+
+function clickSoundAt(accent, time){
+  const t = time ?? audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = "square";
+  osc.frequency.value = accent ? 1400 : 1000;
+
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(0.25, t + 0.003);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+
+  osc.connect(gain);
+  gain.connect(master);
+
+  osc.start(t);
+  osc.stop(t + 0.06);
+}
+
+
+function setActiveButton(name){
+  document.querySelectorAll(".ctrlBtn").forEach(btn=>{
+    btn.classList.toggle("active", btn.id === name);
+  });
+}
+
+
+// =======================
+// 節拍狀態
+// =======================
+let currentBeat = 0;        // 1..meter
+let schedulerTimer = null;
+let nextNoteTime = 0;       // AudioContext 時間（秒）
+
+const lookaheadMs = 25;     // 每 25ms 檢查一次
+const scheduleAheadTime = 0.12; // 先排 120ms 內的事件
+const SPEECH_LEAD_MS = 500; // ✅ 語音提前量（你要自己校正，先用 220）
+let speechEvents = [];      // {timeSec, text}
+
+function scheduleSpeakAt(text, timeSec){
+  // 用 setTimeout 把 speak 對到 AudioContext 的 timeSec
+  const delayMs = (timeSec - audioCtx.currentTime) * 1000 - SPEECH_LEAD_MS;
+  const ms = Math.max(0, delayMs);
+  setTimeout(() => speak(text), ms);
+}
+
+function scheduler(){
+  const bpm = +document.getElementById("bpm").value || 60;
+  const meter = +document.getElementById("meter").value;
+  const secPerBeat = 60 / bpm;
+
+  while(nextNoteTime < audioCtx.currentTime + scheduleAheadTime){
+    // 下一拍
+    currentBeat = (currentBeat % meter) + 1;
+    const isDownbeat = (currentBeat === 1);
+
+    // 排 click（準到爆）
+    clickSoundAt(isDownbeat, nextNoteTime);
+
+    // 排顯示（用 setTimeout 對齊）
+    const beatEl = document.getElementById("beat");
+    setTimeout(() => { beatEl.textContent = currentBeat; }, Math.max(0,(nextNoteTime-audioCtx.currentTime)*1000));
+
+    // 到點要唸的語音事件：把在 scheduleAheadTime 內的都丟出去
+    //（speechEvents 會在按段落時塞進去）
+    for(let i = 0; i < speechEvents.length; i++){
+      const ev = speechEvents[i];
+      if(ev && ev.timeSec <= nextNoteTime + 0.0001){ // 同拍
+        scheduleSpeakAt(ev.text, ev.timeSec);
+        speechEvents[i] = null; // 標記已排
+      }
+    }
+    // 清掉 null
+    speechEvents = speechEvents.filter(Boolean);
+
+    nextNoteTime += secPerBeat;
+  }
+
+  schedulerTimer = setTimeout(scheduler, lookaheadMs);
+}
+
+// =======================
+// 控制
+// =======================
+startBtn.onclick = () => {
+  initAudio();
+  audioCtx.resume();
+  if(window.speechSynthesis) speechSynthesis.cancel();
+
+  currentBeat = 0;
+  nextNoteTime = audioCtx.currentTime + 0.05; // 稍微往後，避免卡住
+  speechEvents = [];
+
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+  startBtn.classList.add("running");
+  stopBtn.classList.add("running");
+
+  scheduler();
+};
+
+stopBtn.onclick = () => {
+  clearTimeout(schedulerTimer);
+  schedulerTimer = null;
+
+  currentBeat = 0;
+  speechEvents = [];
+  document.getElementById("beat").textContent = "–";
+
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+  startBtn.classList.remove("running");
+  stopBtn.classList.remove("running");
+
+  setActiveButton(null);
+  if(window.speechSynthesis) speechSynthesis.cancel();
+};
+
+function armCue(name, btnId){
+  if(window.speechSynthesis) speechSynthesis.cancel();
+
+  // UI
+  setActiveButton(btnId);
+
+  // 找到「下一個重拍」會發生的時間點
+  const bpm = +document.getElementById("bpm").value || 60;
+  const meter = +document.getElementById("meter").value;
+  const secPerBeat = 60 / bpm;
+
+  // currentBeat 是下一拍要變成的拍號，所以「距離下一個重拍」：
+  const beatsUntilDownbeat = (meter - currentBeat) % meter + 1; // 1..meter
+  const downbeatTime = nextNoteTime + (beatsUntilDownbeat - 1) * secPerBeat;
+
+  // 你的需求：重拍先唸段落名，接著下一拍 three two one
+  speechEvents.push({timeSec: downbeatTime, text: name});
+  speechEvents.push({timeSec: downbeatTime + 1*secPerBeat, text: "three"});
+  speechEvents.push({timeSec: downbeatTime + 2*secPerBeat, text: "two"});
+  speechEvents.push({timeSec: downbeatTime + 3*secPerBeat, text: "one"});
+
+  // 倒數結束後熄燈（用 setTimeout 對齊）
+  setTimeout(() => setActiveButton(null),
+    Math.max(0,(downbeatTime + 3*secPerBeat - audioCtx.currentTime)*1000 + 50)
+  );
+}
+
+introBtn.onclick  = () => armCue("Intro","intro");
+verseBtn.onclick  = () => armCue("Verse","verse");
+chorusBtn.onclick = () => armCue("Chorus","chorus");
+bridgeBtn.onclick = () => armCue("Bridge","bridge");
+
+</script>
+</body>
+</html>
