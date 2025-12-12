@@ -231,10 +231,13 @@ let master = null;
 
 function speak(text){
   if(!window.speechSynthesis) return;
-  if(!text) return;
+  if(!text) return; // 防呆：null/undefined/空字串不講
 
   const u = new SpeechSynthesisUtterance(String(text));
   u.lang = "en-US";
+
+  // iOS 有時候需要先 cancel 才會立刻講下一句（避免卡住）
+  speechSynthesis.cancel();
   speechSynthesis.speak(u);
 }
 
@@ -342,27 +345,13 @@ function scheduler(){
 // =======================
 // 控制
 // =======================
-startBtn.onclick = async () => {
+startBtn.onclick = () => {
   initAudio();
-
-  // ✅ iOS 關鍵：強制 resume，等它真的醒
-  if(audioCtx.state !== "running"){
-    await audioCtx.resume();
-  }
-
-  // ✅ 再打一個「無聲 click」喚醒音訊系統
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  gain.gain.value = 0.0001; // 幾乎聽不到
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.01);
-
+  audioCtx.resume();
   if(window.speechSynthesis) speechSynthesis.cancel();
 
   currentBeat = 0;
-  nextNoteTime = audioCtx.currentTime + 0.1;
+  nextNoteTime = audioCtx.currentTime + 0.05; // 稍微往後，避免卡住
   speechEvents = [];
 
   startBtn.disabled = true;
@@ -372,7 +361,6 @@ startBtn.onclick = async () => {
 
   scheduler();
 };
-
 
 stopBtn.onclick = () => {
   clearTimeout(schedulerTimer);
@@ -426,5 +414,3 @@ bridgeBtn.onclick = () => armCue("Bridge","bridge");
 </script>
 </body>
 </html>
-
-
