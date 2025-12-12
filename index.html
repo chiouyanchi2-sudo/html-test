@@ -171,6 +171,20 @@ button.stop.running{filter:brightness(1.15)}
 
 <body>
 
+<button id="unlockBtn" onclick="unlock()"
+  style="
+    position:fixed;
+    top:12px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:999;
+    padding:12px 20px;
+    font-size:16px;
+    border-radius:12px;
+  ">
+  🔊 點一下啟用聲音
+</button>
+  
 <div class="stage">
 
   <!-- 左：控制 -->
@@ -414,3 +428,4 @@ bridgeBtn.onclick = () => armCue("Bridge","bridge");
 </script>
 </body>
 </html>
+
