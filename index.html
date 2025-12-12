@@ -9,6 +9,7 @@
 <button id="cue"   style="font-size:20px" disabled>PLAY CUE</button>
 
 <script>
+const cueBuffers = {};
 let ctx=null;
 let bpm=100;
 let timer=null;
@@ -79,3 +80,4 @@ document.getElementById("cue").onclick    = playCue;
 
 </body>
 </html>
+
